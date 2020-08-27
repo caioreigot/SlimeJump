@@ -7,5 +7,5 @@
 # Slime Jump
 A simple game made in JavaScript for study purposes, with minecraft theme :)
 
-# Game link
+## Game link
 https://caioreigot.github.io/
