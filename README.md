@@ -1,4 +1,4 @@
-![Smile Jump](https://user-images.githubusercontent.com/62410044/91372634-83557200-e7ea-11ea-9eb7-488e02c45f46.gif)
+![Action 26-08-2020 22-34-51~2](https://user-images.githubusercontent.com/62410044/91373511-f1029d80-e7ec-11ea-9c35-e7c96331925b.gif)
 
-## Slime Jump
+### Slime Jump
 A simple game made in JavaScript for study purposes, with minecraft theme :)
