@@ -8,4 +8,7 @@
 A simple game made in JavaScript for study purposes, with minecraft theme :)
 
 ## Game link
-https://caioreigot.github.io/
+https://caioreigot.github.io/SlimeJump
+
+## Note
+The game was not optimized for mobile!
