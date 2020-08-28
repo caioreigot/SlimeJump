@@ -7,7 +7,7 @@
 # Slime Jump
 A simple game made in JavaScript for study purposes, with minecraft theme :)
 
-# Note
+## Note
 The game was not optimized for mobile!
 
 ## Game link
