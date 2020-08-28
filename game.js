@@ -1,72 +1,73 @@
+// Game variables
+var canvas, ctx, screenHeight, screenWidth, maxJumps = 3, speed = 6,
+currentState, record, img,
 
-// Variáveis do jogo
-var canvas, ctx, ALTURA, LARGURA, maxPulos = 3, velocidade = 6,
-estadoAtual, record, img,
-
-estados = {
-    jogar: 0,
-    jogando: 1,
-    perdeu: 2
+states = {
+    play: 0,
+    playing: 1,
+    lose: 2
 },
 
-chao = {
+floor = {
     y: 550,
     x: 0,
-    altura: screen.height / 6,
+    height: screen.height / 6,
 
-    atualizar() {
-        // chão dinâmico
-        this.x -= velocidade;
+    update() {
+        // Dynamic floor
+        this.x -= speed;
         if (this.x <= -1600) {
             this.x = 0;
         }
     },
 
-    desenhar() {
-        spriteChao.desenhar(this.x, this.y);
-        spriteChao.desenhar(this.x + spriteChao.largura, this.y);
+    draw() {
+        floorSprite.draw(this.x, this.y);
+        floorSprite.draw(this.x + floorSprite.width, this.y);
     }
 },
 
-// Bloco "player" do jogo (slime do minecraft)
+// "Player" block (minecraft slime)
 slime = {
     x: 50,
     y: 0,
-    altura: spriteSlime.altura - 22,
-    largura: spriteSlime.largura,
+    height: spriteSlime.height - 22,
+    width: spriteSlime.width,
 
-    // Gravidade do slime
-    gravidade: 1.5,
-    velocidade: 0,
-    forcaDoPulo: 22,
+    // Slime gravity
+    gravity: 1.5,
+    speed: 0,
+    jumpForce: 22,
     
-    qntPulos: 0,
+    jumpsAmount: 0,
 
     score: 0,
 
-    atualizar() {
-        this.velocidade += this.gravidade;
-        this.y += this.velocidade;
+    update() {
+        this.speed += this.gravity;
+        this.y += this.speed;
 
-        if (this.y > chao.y - this.altura && estadoAtual != estados.perdeu) {
-            this.y = chao.y - this.altura;
-            this.qntPulos = 0;
-            this.velocidade = 0;
+        if (this.y > floor.y - this.height && currentState != states.lose) {
+            this.y = floor.y - this.height;
+            this.jumpsAmount = 0;
+            this.speed = 0;
         }
     },
 
-    pular() {
-        if (this.qntPulos < maxPulos) {
-            this.velocidade = -this.forcaDoPulo;
-            this.qntPulos++;
+    jump() {
+        if (this.jumpsAmount < maxJumps) {
+            this.speed = -this.jumpForce;
+            this.jumpsAmount++;
         }
     },
 
+    // Function called to give a "new game", resetting the score
     reset() {
-        this.velocidade = 0;
+        this.speed = 0;
         this.y = 0;
 
         if (this.score > record) {
+            // Storing the score in local storage, so as not to delete when closing the site or browser
             localStorage.setItem("record", this.score);
             record = this.score;
         }
@@ -74,50 +75,50 @@ slime = {
         this.score = 0;
     },
 
-    desenhar() {
-        spriteSlime.desenhar(this.x, this.y);
+    draw() {
+        spriteSlime.draw(this.x, this.y);
     },
 
-    desenharMagma() {
-        spriteSlimeMagma.desenhar(this.x, this.y);
+    drawMagma() {
+        spriteSlimeMagma.draw(this.x, this.y);
     }
 },
 
-obstaculos = {
+obstacles = {
     _obs: [],
     _sprites: [magmaObstacle1, magmaObstacle2, magmaObstacle3, magmaObstacle4, magmaObstacle5],
-    tempoInsere: 0,
+    insertTime: 0,
     
-    insere() {
+    insert() {
         this._obs.push({
-            x: LARGURA,
-            y: chao.y - Math.floor(20 + Math.random() * 80), // max: 95, minimo: x - 25
-            // largura: 50 + Math.floor(10 * Math.random()),
-            largura: 40,
+            x: screenWidth,
+            y: floor.y - Math.floor(20 + Math.random() * 80), // max: 95, minimo: x - 25
+            // width: 50 + Math.floor(10 * Math.random()),
+            width: 40,
             sprite: this._sprites[Math.floor(this._sprites.length * Math.random())]
         });
 
-        this.tempoInsere = 35 + Math.floor(21 * Math.random());
+        this.insertTime = 35 + Math.floor(21 * Math.random());
     },
 
-    atualizar() {
-        if (this.tempoInsere == 0) {
-            this.insere();
+    update() {
+        if (this.insertTime == 0) {
+            this.insert();
         } else {
-            this.tempoInsere--; 
+            this.insertTime--; 
         }
 
-        // Decrementando o X para que os obstáculos se movam para a esquerda
+        // Decrementing the X so that the obstacles move to the left
         for (let i = 0, tam = this._obs.length; i < tam; i++) {
             
             var obs = this._obs[i];
-            obs.x -= velocidade;
+            obs.x -= speed;
 
-            if (slime.x < obs.x + obs.largura && slime.x + slime.largura >= obs.x && obs.y <= slime.y + slime.altura) {
-                estadoAtual = estados.perdeu;
+            if (slime.x < obs.x + obs.width && slime.x + slime.width >= obs.x && obs.y <= slime.y + slime.height) {
+                currentState = states.lose;
             }
 
-            else if (obs.x <= -obs.largura) {
+            else if (obs.x <= -obs.width) {
                 this._obs.splice(i, 1);
                 slime.score++;
                 tam--;
@@ -126,166 +127,173 @@ obstaculos = {
         }
     },
 
-    limpa() {
+    clean() {
         this._obs = [];
     },
     
-    desenhar() {
+    draw() {
         for (let i = 0, tam = this._obs.length; i < tam; i++) {
             var obs = this._obs[i];
 
-            obs.sprite.desenhar(obs.x, obs.y);
+            obs.sprite.draw(obs.x, obs.y);
         }
     }
 
 };
 
-// Fim das variáveis do jogo
+// End of game variables
 
-function clique(event) {
+// Jumping or skipping game menus by pressing any key or mouse button
+function buttonPressed(e) {
 
-    if (estadoAtual == estados.jogando) {
-        slime.pular();
+    if (currentState == states.playing) {
+        // e.keyCode == 87 <- button W | e.keyCode == 32 <- spacebar | e.button == 0 <- mouse left click
+        if (e.keyCode == 87 || e.keyCode == 32 || e.button == 0) {
+            slime.jump();
+        }
     }
 
-    else if (estadoAtual == estados.jogar) {
-        estadoAtual = estados.jogando;
+    else if (currentState == states.play) {
+        currentState = states.playing;
     }
 
-    // && => não deixa o usuário "reiniciar" o jogo antes que o slime caia por completo da tela após perder
-    else if (estadoAtual == estados.perdeu && slime.y >= 2 * ALTURA) {
-        estadoAtual = estados.jogar;
-        obstaculos.limpa();
+    // && => does not let the user "restart" the game before the slime completely falls off the screen after losing
+    else if (currentState == states.lose && slime.y >= 2 * screenHeight) {
+        currentState = states.play;
+        obstacles.clean();
         slime.reset();
     }
 }
 
 function main() {
-    ALTURA = window.innerHeight;
-    LARGURA = window.innerWidth;
+    screenHeight = window.innerHeight;
+    screenWidth = window.innerWidth;
 
-    // Definindo a altura mínima
-    if (ALTURA <= 500) {
-        ALTURA = 600
+    // Setting the minimum height
+    if (screenHeight <= 500) {
+        screenHeight = 600
     }
 
-    // Criando canvas
+    // Creating canvas
     canvas = document.createElement("canvas");
-    canvas.width = LARGURA;
-    canvas.height = ALTURA;
+    canvas.width = screenWidth;
+    canvas.height = screenHeight;
     canvas.style.border = "1px solid #000";
 
-    // Definindo o contexto
+    // Defining the context
     ctx = canvas.getContext("2d");
     document.body.appendChild(canvas);
 
-    document.addEventListener("mousedown", clique);
+    // Interact with the game by pressing any key or mouse button
+    document.addEventListener("mousedown", buttonPressed);
+    document.addEventListener("keydown", buttonPressed);
 
-    estadoAtual = estados.jogar;
+    currentState = states.play;
     record = localStorage.getItem("record");
 
     if (record == null) {
         record = 0;
     }
 
+    // Loading the sheet image
     img = new Image();
-    img.src = "./images/sprite.png";
+    img.src = "./images/sheet.png";
 
     rodar();
 }
 
 function rodar() {
-    atualizar();
-    desenhar();
+    update();
+    draw();
 
     window.requestAnimationFrame(rodar); // loop
 }
 
-function atualizar() {
+function update() {
 
-    slime.atualizar();
+    slime.update();
 
-    chao.atualizar();
+    floor.update();
 
-    if (estadoAtual == estados.jogando) {
-        obstaculos.atualizar();
+    if (currentState == states.playing) {
+        obstacles.update();
     }
 }
 
-function desenhar() {
-    // Background sem imagem (cor sólida):
+function draw() {
+    // Background without image (solid color):
     // ctx.fillStyle = "#80daff";
-    // ctx.fillRect(0, 0, LARGURA, ALTURA);
+    // ctx.fillRect(0, 0, screenWidth, screenHeight);
 
-    bg.desenhar(0, 0);
+    bg.draw(0, 0);
 
     ctx.fillStyle = "#fff";
     ctx.font = "50px Arial";
     ctx.fillText(slime.score, 30, 68);
 
-    if (estadoAtual == estados.jogando) {
-        obstaculos.desenhar();
+    if (currentState == states.playing) {
+        obstacles.draw();
     }
 
-    chao.desenhar();
+    floor.draw();
 
-    // Desenharndo o slime
-    if (estadoAtual == estados.perdeu) {
-        slime.desenharMagma();
+    // Drawing the slime
+    if (currentState == states.lose) {
+        slime.drawMagma();
     } else {
-        slime.desenhar();
+        slime.draw();
     }
 
-    // Tela antes de estar jogando
-    if (estadoAtual == estados.jogar) {
-        jogar.desenhar(LARGURA / 2 - jogar.largura / 2, ALTURA / 2 - jogar.altura / 2);
+    // Screen before playing
+    if (currentState == states.play) {
+        play.draw(screenWidth / 2 - play.width / 2, screenHeight / 2 - play.height / 2);
     }
 
-    // Tela após perder o jogo (game over)
-    if (estadoAtual == estados.perdeu) {
+    // Screen after losing the game (game over)
+    if (currentState == states.lose) {
 
-        // Imagem do creeper com o placar
-        perdeu.desenhar(LARGURA / 2 - perdeu.largura / 2, ALTURA / 2 - perdeu.altura / 2 - spriteRecord.altura / 2);
+        // Image of the creeper with the scoreboard
+        lose.draw(screenWidth / 2 - lose.width / 2, screenHeight / 2 - lose.height / 2 - spriteRecord.height / 2);
 
-        spritePlacar.desenhar(LARGURA / 2 - spriteRecord.largura / 2.1, ALTURA / 2 + perdeu.altura / 2 - spriteRecord.altura * 3);
+        scoreboard.draw(screenWidth / 2 - spriteRecord.width / 2.1, screenHeight / 2 + lose.height / 2 - spriteRecord.height * 3);
 
-        // Número do score
+        // Score number
         if (slime.score < 10) {
-            ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 3.55, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+            ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 3.55, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
         }
         else if (slime.score >= 10 && slime.score < 100) {
-            ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 3, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+            ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 3, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
         }
         else {
-            ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 2.67, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+            ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 2.67, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
         }
 
-        // Número do record e imagem da placa "novo"
+        // Record number and plate image "new"
         if (slime.score > record) {
-            novo.desenhar(LARGURA / 2 - perdeu.largura / 8.57, ALTURA / 2 + perdeu.largura / 2);
+            newBoard.draw(screenWidth / 2 - lose.width / 8.57, screenHeight / 2 + lose.width / 2);
 
             if (slime.score < 10) {
-                ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 2.85 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 2.85 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
             else if (slime.score >= 10 && slime.score < 100) {
-                ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 2.5 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 2.5 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
             else {
-                ctx.fillText(slime.score, LARGURA / 2 - spritePlacar.largura / 2.26 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(slime.score, screenWidth / 2 - scoreboard.width / 2.26 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
 
         }
 
-        // Caso não bata o recorde, apenas o mostre
+        // If you don't beat the record, just show it
         else {
             if (record < 10) {
-                ctx.fillText(record, LARGURA / 2 - spritePlacar.largura / 2.85 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(record, screenWidth / 2 - scoreboard.width / 2.85 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
             else if (record >= 10 && record < 100) {
-                ctx.fillText(record, LARGURA / 2 - spritePlacar.largura / 2.5 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(record, screenWidth / 2 - scoreboard.width / 2.5 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
             else {
-                ctx.fillText(record, LARGURA / 2 - spritePlacar.largura / 2.25 + perdeu.largura / 2.05, ALTURA / 2 + perdeu.altura / 2 - spritePlacar.altura * 0.63);
+                ctx.fillText(record, screenWidth / 2 - scoreboard.width / 2.25 + lose.width / 2.05, screenHeight / 2 + lose.height / 2 - scoreboard.height * 0.63);
             }
         }
 
@@ -293,5 +301,5 @@ function desenhar() {
 
 }
 
-// Inicializando o jogo
+// Initializing the game
 main();
