@@ -11,4 +11,4 @@ A simple game made in JavaScript for study purposes, with minecraft theme :)
 The game was not optimized for mobile!
 
 ## Link to play
-https://caioreigot.github.io/SlimeJump
+https://caioreigot.github.io/slimejump
