@@ -1,6 +1,6 @@
 // Game variables
 var canvas, ctx, screenHeight, screenWidth, maxJumps = 3, speed = 6,
-currentState, record, img,
+currentState, record, img, levelSpeed = 55,
 
 states = {
     play: 0,
@@ -42,6 +42,7 @@ slime = {
     jumpsAmount: 0,
 
     score: 0,
+    thugLife: 0,
 
     update() {
         this.speed += this.gravity;
@@ -73,6 +74,7 @@ slime = {
         }
 
         this.score = 0;
+        this.thugLife = 0;
     },
 
     draw() {
@@ -81,6 +83,10 @@ slime = {
 
     drawMagma() {
         spriteSlimeMagma.draw(this.x, this.y);
+    },
+
+    drawThugLife() {
+        slimeThugLife.draw(this.x, this.y);
     }
 },
 
@@ -98,7 +104,13 @@ obstacles = {
             sprite: this._sprites[Math.floor(this._sprites.length * Math.random())]
         });
 
-        this.insertTime = 35 + Math.floor(21 * Math.random());
+        // Related to the distance between obstacles
+        this.insertTime = levelSpeed + Math.floor(21 * Math.random());
+
+        // Increasing the level of difficulty, decreasing the distance between obstacles
+        if (slime.score == 25 || slime.score == 50 || slime.score == 75 || slime.score == 100) {
+            levelSpeed -= 4;
+        }
     },
 
     update() {
@@ -171,7 +183,16 @@ function main() {
 
     // Setting the minimum height
     if (screenHeight <= 500) {
-        screenHeight = 600
+        screenHeight = 600;
+    }
+    // Maximum height
+    if (screenHeight >= 700) {
+        screenHeight = 700;
+    }
+
+    // Setting the maximum width
+    if (screenWidth >= 1500) {
+        screenWidth = 1500;
     }
 
     // Creating canvas
@@ -212,7 +233,6 @@ function rodar() {
 function update() {
 
     slime.update();
-
     floor.update();
 
     if (currentState == states.playing) {
@@ -235,13 +255,45 @@ function draw() {
         obstacles.draw();
     }
 
+    // Writing the levels
+    if (currentState == states.playing && slime.score == 0) {
+        ctx.fillText('Level 1', screenWidth / 2 - 80.5, screenHeight / 2 - 200);
+    }
+    if (currentState == states.playing && slime.score >= 25 && slime.score <= 30) {
+        ctx.fillText('Level 2', screenWidth / 2 - 80.5, screenHeight / 2 - 200);
+    }
+    if (currentState == states.playing && slime.score >= 50 && slime.score <= 55) {
+        ctx.fillStyle = "#ffff00";
+        ctx.fillText('Level 3', screenWidth / 2 - 80.5, screenHeight / 2 - 200);
+    }
+    if (currentState == states.playing && slime.score >= 75 && slime.score <= 80) {
+        ctx.fillStyle = "#ffa500";
+        ctx.fillText('Level 4', screenWidth / 2 - 80.5, screenHeight / 2 - 200);
+    }
+    if (currentState == states.playing && slime.score >= 100 && slime.score <= 105) {
+        ctx.fillStyle = "#ff0000";
+        ctx.fillText('Level 5', screenWidth / 2 - 80.5, screenHeight / 2 - 200);
+    }
+
+    if (currentState == states.playing && slime.score >= 120 && slime.score <= 125) {
+        ctx.fillStyle = "#ff0000";
+        sunglassesEmote.draw(screenWidth / 2 - 71.5, screenHeight / 2 - 200);
+        slime.thugLife = 1;
+    }
+
     floor.draw();
 
     // Drawing the slime
     if (currentState == states.lose) {
         slime.drawMagma();
-    } else {
-        slime.draw();
+    } 
+    else {
+        if (slime.thugLife == 0) {
+            slime.draw();
+        } 
+        else {
+            slime.drawThugLife();
+        }
     }
 
     // Screen before playing
