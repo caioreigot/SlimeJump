@@ -1,5 +1,5 @@
 // Game variables
-var canvas, ctx, screenHeight, screenWidth, maxJumps = 3, speed = 6,
+var canvas, ctx, screenHeight, screenWidth, maxJumps = 2, speed = 6,
 currentState, record, img, levelSpeed = 55,
 
 states = {
