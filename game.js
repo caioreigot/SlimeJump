@@ -74,6 +74,7 @@ slime = {
         }
 
         this.score = 0;
+	levelSpeed = 55;
         this.thugLife = 0;
     },
 
@@ -109,7 +110,7 @@ obstacles = {
 
         // Increasing the level of difficulty, decreasing the distance between obstacles
         if (slime.score == 25 || slime.score == 50 || slime.score == 75 || slime.score == 100) {
-            levelSpeed -= 4;
+            levelSpeed -= 4.5;
         }
     },
 
