@@ -74,7 +74,7 @@ slime = {
         }
 
         this.score = 0;
-	levelSpeed = 55;
+	    levelSpeed = 55;
         this.thugLife = 0;
     },
 
