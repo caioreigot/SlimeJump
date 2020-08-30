@@ -200,7 +200,6 @@ function main() {
     canvas = document.createElement("canvas");
     canvas.width = screenWidth;
     canvas.height = screenHeight;
-    canvas.style.border = "1px solid #000";
 
     // Defining the context
     ctx = canvas.getContext("2d");
@@ -221,14 +220,13 @@ function main() {
     img = new Image();
     img.src = "./images/sheet.png";
 
-    rodar();
+    run();
 }
 
-function rodar() {
+function run() {
     update();
     draw();
-
-    window.requestAnimationFrame(rodar); // loop
+    window.requestAnimationFrame(run); // loop
 }
 
 function update() {
