@@ -99,7 +99,7 @@ obstacles = {
     insert() {
         this._obs.push({
             x: screenWidth,
-            y: floor.y - Math.floor(20 + Math.random() * 80), // max: 95, minimo: x - 25
+            y: floor.y - Math.floor(20 + Math.random() * 80),
             // width: 50 + Math.floor(10 * Math.random()),
             width: 40,
             sprite: this._sprites[Math.floor(this._sprites.length * Math.random())]
