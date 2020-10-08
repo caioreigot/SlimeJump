@@ -187,8 +187,8 @@ function main() {
         screenHeight = 600;
     }
     // Maximum height
-    if (screenHeight >= 700) {
-        screenHeight = 700;
+    if (screenHeight >= 900) {
+        screenHeight = 900;
     }
 
     // Setting the maximum width
